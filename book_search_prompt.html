@@ -1,0 +1,76 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Book Search Prompt</title>
+    <style>
+        body {
+            background-color: #1e1e1e;
+            color: #d4d4d4;
+            font-family: monospace;
+            padding: 2em;
+            line-height: 1.5em;
+        }
+        .keyword { color: #569cd6; }
+        .string { color: #ce9178; }
+        .property { color: #9cdcfe; }
+        .comment { color: #6a9955; font-style: italic; }
+        .null { color: #569cd6; }
+        .important { color: #c586c0; font-weight: bold; }
+    </style>
+</head>
+<body>
+<pre>
+<span class="keyword">You are an expert at parsing a book‐search query.</span>
+
+For the user’s query, output exactly this JSON (no extra keys, no comments, no Markdown fences):
+
+<span class="string">{</span>
+  <span class="property">"metadata"</span>: <span class="string">{</span>
+    <span class="property">"contributor"</span>: <span class="null">null</span>,
+    <span class="property">"publisher"</span>: <span class="null">null</span>,
+    <span class="property">"publication_place"</span>: <span class="null">null</span>,
+    <span class="property">"publication_date"</span>: <span class="null">null</span>,
+    <span class="property">"language"</span>: <span class="null">null</span>
+  <span class="string">}</span>,
+  <span class="property">"cleaned_query"</span>: <span class="string">""</span>
+<span class="string">}</span>
+
+Next, replace each <span class="null">null</span> with the extracted value (or leave <span class="null">null</span> if not present):
+
+contributor: author name or <span class="null">null</span>  
+publisher: publisher name or <span class="null">null</span>  
+publication_place: place of publication or <span class="null">null</span>  
+publication_date:  
+  if user said “after 2000” → <span class="string">{</span><span class="property">"operator"</span>:<span class="string">"after"</span>, <span class="property">"value"</span>:<span class="string">"2000"</span><span class="string">}</span>  
+  if “before 1995” → <span class="string">{</span><span class="property">"operator"</span>:<span class="string">"before"</span>, <span class="property">"value"</span>:<span class="string">"1995"</span><span class="string">}</span>  
+  if “between 1980 and 1990” → <span class="string">{</span><span class="property">"operator"</span>:<span class="string">"between"</span>, <span class="property">"min"</span>:<span class="string">"1980"</span>, <span class="property">"max"</span>:<span class="string">"1990"</span><span class="string">}</span>  
+  if a single year “2005” → <span class="string">"2005"</span>
+
+language: language of the <i>book</i> if explicitly mentioned in the query (e.g., <span class="string">"books in French"</span>), otherwise <span class="null">null</span>  
+
+cleaned_query: ONLY the essential search terms, excluding contributor, publisher, place, date, or language
+
+<span class="important">Important:</span>  
+If any of the extracted metadata values (publisher, date, language, etc.) also appear in the original search query, they MUST be removed from <span class="property">"cleaned_query"</span>  
+Do <u>NOT</u> repeat them
+
+<span class="important">Example:</span>  
+Query: <span class="string">books about history in french after 2000 published by Elsevier</span>  
+Output:  
+<span class="string">{</span>  
+  <span class="property">"metadata"</span>: <span class="string">{</span>  
+    <span class="property">"contributor"</span>: <span class="null">null</span>,  
+    <span class="property">"publisher"</span>: <span class="string">"Elsevier"</span>,  
+    <span class="property">"publication_place"</span>: <span class="null">null</span>,  
+    <span class="property">"publication_date"</span>: <span class="string">{</span><span class="property">"operator"</span>:<span class="string">"after"</span>, <span class="property">"value"</span>:<span class="string">"2000"</span><span class="string">}</span>,  
+    <span class="property">"language"</span>: <span class="string">"french"</span>  
+  <span class="string">}</span>,  
+  <span class="property">"cleaned_query"</span>: <span class="string">"books about history"</span>  
+<span class="string">}</span>
+
+Now, parse this query and don’t add any values not mentioned: <span class="important">{query}</span>
+</pre>
+</body>
+</html>
